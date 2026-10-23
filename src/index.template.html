@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#050810" />
+<meta name="description" content="多元积分互动实验室：四类积分、格林公式、斯托克斯公式、高斯公式与梯度散度旋度的 3D 可视化。" />
+<title>场的剧场 · 多元积分互动实验室</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050810'/%3E%3Cpath d='M40 16c-8 0-8 8-8 16s0 16-8 16' fill='none' stroke='%2338e8ff' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='42' cy='22' r='3' fill='%23ffb454'/%3E%3C/svg%3E" />
+<style>/*__APP_CSS__*/</style>
+</head>
+<body>
+<div id="app" class="app is-intro">
+  <aside id="panel" class="panel" aria-label="章节讲解与控制">
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="20" class="bm-ring" />
+          <circle cx="24" cy="24" r="13" class="bm-ring bm-ring-2" />
+          <path d="M29 13c-6 0-6 6-6 11s0 11-6 11" class="bm-int" />
+          <circle cx="30" cy="17" r="2.3" class="bm-dot" />
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <div class="brand-title">场的剧场</div>
+        <div class="brand-sub">FIELD ATLAS · 多元积分可视化</div>
+      </div>
+      <button class="icon-btn brand-help" data-action="help" aria-label="帮助与符号说明">?</button>
+    </header>
+
+    <div class="chapter-head">
+      <div class="chapter-kicker">
+        <span id="chapter-num" class="chapter-num">00</span>
+        <span id="chapter-kicker" class="chapter-kicker-text">序章 · PROLOGUE</span>
+      </div>
+      <h1 id="chapter-title">无限细分</h1>
+      <p id="chapter-subtitle">把弯曲的世界，切成无穷多个小块</p>
+    </div>
+
+    <div id="panel-scroll" class="panel-scroll">
+      <section class="card human-card" id="human-card">
+        <div class="card-head">
+          <span class="card-label"><i class="label-dot label-gold"></i>人话翻译</span>
+          <button id="rigor-toggle" class="mini-toggle" type="button" aria-pressed="false">严谨版</button>
+        </div>
+        <p id="human-text" class="human-text"></p>
+      </section>
+
+      <section class="card formula-card" id="formula-card">
+        <div class="card-label"><i class="label-dot label-cyan"></i>核心公式</div>
+        <div id="formula" class="formula"></div>
+        <div id="formula-note" class="formula-note"></div>
+      </section>
+
+      <section class="card physics-card" id="physics-card">
+        <div class="card-label"><i class="label-dot label-violet"></i>物理镜头</div>
+        <p id="physics-text"></p>
+      </section>
+
+      <section class="card trap-card" id="trap-card">
+        <div class="card-label"><i class="label-dot label-pink"></i>别踩坑</div>
+        <p id="trap-text"></p>
+      </section>
+
+      <section class="card readout-card" id="readout-card">
+        <div class="card-label"><i class="label-dot label-mint"></i>实时读数</div>
+        <div id="readouts" class="readouts"></div>
+      </section>
+
+      <section class="card controls-card" id="controls-card">
+        <div class="card-label"><i class="label-dot label-gold"></i>动手试试</div>
+        <div id="controls" class="controls"></div>
+      </section>
+
+      <section class="card extra-card" id="extra-card" hidden></section>
+    </div>
+
+    <footer class="panel-footer">
+      <button id="auto-tour" class="footer-btn" type="button">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3.2a6.8 6.8 0 1 1-6.5 4.8" /><path d="M3.1 3.4v4.8h4.8" /></svg>
+        <span>自动导览</span>
+      </button>
+      <button id="symbol-help" class="footer-btn" type="button">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5h5.6c2 0 2.7 1 2.7 2.6v8.4" /><path d="M16 4.5h-3.7" /><path d="M4 15.5h5.2" /></svg>
+        <span>符号小抄</span>
+      </button>
+      <span class="footer-note">v1.0 · OFFLINE</span>
+    </footer>
+  </aside>
+
+  <main id="stage" class="stage" aria-label="三维可视化舞台">
+    <div id="canvas-host" class="canvas-host"></div>
+    <svg id="overlay" class="overlay" aria-hidden="true"></svg>
+    <div class="stage-glow"></div>
+    <div class="stage-vignette"></div>
+    <div class="stage-grain"></div>
+    <div class="frame-corner frame-tl"></div>
+    <div class="frame-corner frame-tr"></div>
+    <div class="frame-corner frame-bl"></div>
+    <div class="frame-corner frame-br"></div>
+
+    <div class="stage-top">
+      <div class="stage-status"><span class="live-dot"></span><span id="stage-status">FIELD ONLINE</span></div>
+      <div class="stage-actions">
+        <button class="icon-btn" data-action="pause" aria-label="暂停或继续动画" title="播放 / 暂停">
+          <svg class="ico-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></svg>
+          <svg class="ico-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7V5z" /></svg>
+        </button>
+        <button class="icon-btn" data-action="rotate" aria-label="自动旋转视角" title="自动旋转">
+          <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8" /><path d="M20 3.5V8h-4.5" /></svg>
+        </button>
+        <button class="icon-btn" data-action="labels" aria-label="显示或隐藏标注" title="显示 / 隐藏标注">
+          <svg viewBox="0 0 24 24"><path d="M4 6h6M14 6h6M4 12h3M11 12h9M4 18h9M17 18h3" /></svg>
+        </button>
+        <button class="icon-btn" data-action="sound" aria-label="开启或关闭环境音" title="环境音（M）">
+          <svg viewBox="0 0 24 24"><path class="snd-body" d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z" /><path class="snd-wave" d="M15.5 9a4.5 4.5 0 0 1 0 6" /><path class="snd-wave" d="M18 6.5a8 8 0 0 1 0 11" /><path class="snd-slash" d="M4 4l16 16" /></svg>
+        </button>
+        <button class="icon-btn" data-action="reset" aria-label="重置视角" title="重置视角">
+          <svg viewBox="0 0 24 24"><path d="M4 9V4h5" /><path d="M4.6 4.6A9 9 0 1 1 3 12" /></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="stage-bottom">
+      <div id="legend" class="legend" aria-hidden="true"></div>
+      <div id="chapterstrip" class="chapterstrip" role="tablist" aria-label="章节导航"></div>
+      <div class="hint">拖拽旋转 · 滚轮缩放 · <kbd>←</kbd><kbd>→</kbd> 切换章节</div>
+    </div>
+
+    <div id="tooltip" class="tooltip" role="status" aria-live="polite"></div>
+    <div id="fallback" class="fallback" hidden>
+      <div class="fallback-card">
+        <div class="fallback-mark">∇</div>
+        <h2>这个浏览器没有打开 WebGL</h2>
+        <p>3D 舞台需要 WebGL。请使用较新的 Chrome、Edge 或 Firefox，并在设置中开启硬件加速后重新打开本文件。</p>
+        <p class="fallback-note">左侧的文字讲解与公式仍然可以阅读。</p>
+      </div>
+    </div>
+  </main>
+
+  <section id="intro" class="intro" aria-label="开场">
+    <div class="intro-wash"></div>
+    <div class="intro-content">
+      <div class="intro-eyebrow"><span class="eyebrow-line"></span>INTERACTIVE FIELD ATLAS · 2026</div>
+      <h1 class="intro-title"><span>场的</span><em>剧场</em></h1>
+      <div class="intro-en">A THEATRE OF FIELDS</div>
+      <p class="intro-sub">多元积分 · 从边界到内部</p>
+      <p class="intro-desc">四类积分，三大公式，三个算子。<br />把抽象的定义，变成可以旋转、可以拨动、可以看见的东西。</p>
+      <div class="intro-actions">
+        <button id="start-btn" class="primary-btn" type="button">
+          <span>进入实验室</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg>
+        </button>
+        <button id="intro-tour" class="ghost-btn" type="button">自动导览</button>
+      </div>
+      <div class="intro-meta"><span>10 个章节</span><i></i><span>完全离线</span><i></i><span>拖拽可旋转</span></div>
+    </div>
+    <div class="intro-badge">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="54" />
+        <circle cx="60" cy="60" r="43" stroke-dasharray="2 7" />
+        <path d="M74 28c-19 0-19 17-19 32s0 32-19 32" />
+        <circle cx="78" cy="39" r="4" />
+      </svg>
+      <div>∮ ∂Ω = ∫ Ω</div>
+    </div>
+    <div class="intro-foot">拖拽旋转 · 滚轮缩放 · 点击节点切换章节</div>
+  </section>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-head">
+        <div>
+          <div class="modal-kicker">FIELD MANUAL</div>
+          <h2 id="modal-title">操作与符号</h2>
+        </div>
+        <button class="icon-btn" data-close-modal aria-label="关闭">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <div class="modal-tabs" role="tablist">
+        <button class="modal-tab is-active" data-tab="gesture" role="tab" aria-selected="true">操作</button>
+        <button class="modal-tab" data-tab="symbols" role="tab" aria-selected="false">符号小抄</button>
+        <button class="modal-tab" data-tab="credits" role="tab" aria-selected="false">灵感来源</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-pane is-active" data-pane="gesture">
+          <div class="manual-grid">
+            <div class="manual-item"><b>拖拽</b><span>旋转 3D 场景</span></div>
+            <div class="manual-item"><b>滚轮 / 双指</b><span>缩放视角</span></div>
+            <div class="manual-item"><b>← →</b><span>上一章 / 下一章</span></div>
+            <div class="manual-item"><b>空格</b><span>暂停 / 继续动画</span></div>
+            <div class="manual-item"><b>M</b><span>环境音开关</span></div>
+            <div class="manual-item"><b>R</b><span>重置视角</span></div>
+            <div class="manual-item"><b>L</b><span>显示 / 隐藏标注</span></div>
+          </div>
+          <p class="manual-note">所有场景都可以直接拖拽旋转。左侧滑杆会实时改变数学对象与数值，动画不是预录的。</p>
+        </div>
+        <div class="modal-pane" data-pane="symbols">
+          <div class="symbol-list">
+            <div class="symbol-row"><span class="symbol">∫</span><p><b>积分</b>把无穷多个小份加起来。</p></div>
+            <div class="symbol-row"><span class="symbol">∮</span><p><b>环路积分</b>沿着一条闭合的边界走一圈。</p></div>
+            <div class="symbol-row"><span class="symbol">∬</span><p><b>曲面积分</b>在一个二维曲面上累加。</p></div>
+            <div class="symbol-row"><span class="symbol">∭</span><p><b>体积分</b>在一个三维区域内部累加。</p></div>
+            <div class="symbol-row"><span class="symbol">ds / dS</span><p><b>弧长 / 面积微元</b>一小段弧长，或一小片面积。</p></div>
+            <div class="symbol-row"><span class="symbol">∂Ω</span><p><b>边界</b>区域 Ω 的外边缘。</p></div>
+            <div class="symbol-row"><span class="symbol">∇f</span><p><b>梯度</b>标量场上升最快的方向与坡度。</p></div>
+            <div class="symbol-row"><span class="symbol">∇·F</span><p><b>散度</b>单位体积的净流出量；源或汇的强度。</p></div>
+            <div class="symbol-row"><span class="symbol">∇×F</span><p><b>旋度</b>局部环流强度；小风车旋转的轴与快慢。</p></div>
+            <div class="symbol-row"><span class="symbol">n</span><p><b>单位法向量</b>曲面的朝向。第二类曲面积分靠它定正负。</p></div>
+            <div class="symbol-row"><span class="symbol">F·n</span><p><b>点乘</b>只保留“穿过曲面”的那部分向量。</p></div>
+            <div class="symbol-row"><span class="symbol">∂Q/∂x</span><p><b>偏导数</b>固定其他变量，只看 Q 随 x 的变化率。</p></div>
+          </div>
+        </div>
+        <div class="modal-pane" data-pane="credits">
+          <p class="credits-lead">本页的代码、几何与文案均为原创；视觉与叙事受到这些优秀开源项目与互动作品的启发。</p>
+          <div class="credit-list">
+            <a href="https://threejs.org/examples/" target="_blank" rel="noreferrer"><b>Three.js Examples</b><span>Bloom、Instancing、Parametric Geometry 的工业级范例</span></a>
+            <a href="https://www.3blue1brown.com/" target="_blank" rel="noreferrer"><b>3Blue1Brown / Manim</b><span>克制的配色与“先直觉、后公式”的叙事</span></a>
+            <a href="https://mathbox.org/" target="_blank" rel="noreferrer"><b>MathBox</b><span>Steven Wittens 的 3D 数学视觉语言</span></a>
+            <a href="https://ciechanow.ski/" target="_blank" rel="noreferrer"><b>Bartosz Ciechanowski</b><span>可操作、可探索的解释性文章</span></a>
+            <a href="https://setosa.io/" target="_blank" rel="noreferrer"><b>Setosa</b><span>直接操纵式的数学可视化</span></a>
+            <a href="https://katex.org/" target="_blank" rel="noreferrer"><b>KaTeX</b><span>离线公式排版</span></a>
+          </div>
+          <p class="credits-note">《Div, Grad, Curl, and All That》提供了本页物理直觉的框架。所有引用仅作灵感参考，未复制其素材或代码。环境音由 Web Audio 实时生成，无外部音源。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loader" class="loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">CALIBRATING FIELD</div>
+  </div>
+</div>
+<noscript><div class="noscript">需要启用 JavaScript 才能进入 3D 实验室。</div></noscript>
+<script>/*__APP_JS__*/</script>
+</body>
+</html>

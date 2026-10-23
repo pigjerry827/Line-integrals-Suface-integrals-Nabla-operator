@@ -1,0 +1,45 @@
+{
+  "name": "field-atlas-calculus",
+  "version": "1.0.0",
+  "description": "A single-file, offline 3D interactive atlas for multivariable integration.",
+  "private": true,
+  "type": "module",
+  "homepage": "https://pigjerry827.github.io/Line-integrals-Suface-integrals-Nabla-operator/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pigjerry827/Line-integrals-Suface-integrals-Nabla-operator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pigjerry827/Line-integrals-Suface-integrals-Nabla-operator/issues"
+  },
+  "license": "MIT",
+  "author": "pigjerry827",
+  "keywords": [
+    "calculus",
+    "multivariable-calculus",
+    "line-integral",
+    "surface-integral",
+    "green-theorem",
+    "stokes-theorem",
+    "gauss-theorem",
+    "threejs",
+    "webgl",
+    "interactive-visualization",
+    "education"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "shot": "node scripts/shoot.mjs"
+  },
+  "dependencies": {
+    "katex": "0.16.22",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "puppeteer-core": "24.15.0"
+  }
+}

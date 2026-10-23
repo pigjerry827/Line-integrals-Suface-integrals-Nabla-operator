@@ -1,0 +1,12 @@
+node_modules/
+dist/
+screenshots/
+多元积分_互动实验室.html
+
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+.vscode/
+.idea/
