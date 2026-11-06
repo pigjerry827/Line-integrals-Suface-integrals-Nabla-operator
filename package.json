@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "katex": "0.16.22",
-    "three": "0.186.1"
+    "three": "0.187.0"
   },
   "devDependencies": {
     "esbuild": "0.28.2",
